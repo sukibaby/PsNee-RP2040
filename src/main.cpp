@@ -33,7 +33,7 @@
 // #define ATmega328_168
 // #define ATmega32U4_16U4
 // #define ATtiny85_45_25
-// #define rp2040zero
+// RP2040 is selected automatically by PlatformIO board/environment
 
 /*
   Fuses:
@@ -111,7 +111,7 @@ volatile uint16_t millisec = 0;
 //                         Code section
 //------------------------------------------------------------------------------------------------
 
-#if !defined(rp2040zero)
+#if !defined(ARDUINO_ARCH_RP2040)
 // *****************************************************************************************
 // Interrupt Service Routine: CTC_TIMER_VECTOR
 // Description:
@@ -194,7 +194,7 @@ void Timer_Stop()
 #endif
 }
 
-#elif defined(rp2040zero)
+#elif defined(ARDUINO_ARCH_RP2040)
 
 // Timer functions for RP2040
 void Timer_Start()
@@ -328,7 +328,7 @@ void inject_SCEX(const char region)
             PIN_DATA_CLEAR;
           }
 
-#ifdef rp2040zero
+#ifdef ARDUINO_ARCH_RP2040
           // Update timer variables for RP2040 implementation
           update_timer_vars();
 #endif
@@ -349,6 +349,7 @@ void inject_SCEX(const char region)
   PIN_DATA_CLEAR;
   _delay_ms(DELAY_BETWEEN_INJECTIONS);
 }
+#endif
 
 void Init()
 {
@@ -370,14 +371,7 @@ void Init()
 #endif
 
 #if defined(LED_RUN)
-  #if !defined(rp2040zero)
-    PIN_LED_OUTPUT;
-  #else
-    pixels.begin(); // Initialize the NeoPixel
-    pixels.setBrightness(50); // Set brightness to 50 (0-255)
-    pixels.setPixelColor(0, pixels.Color(0, 0, 0)); // Set the NeoPixel to off
-    pixels.show(); // Update the NeoPixel to show the off state
-  #endif
+  PIN_LED_OUTPUT;
 #endif
 
   GLOBAL_INTERRUPT_ENABLE;
@@ -401,12 +395,7 @@ int main()
 #if defined(BIOS_PATCH)
 
 #if defined(LED_RUN)
-  #if !defined(rp2040zero)
-    PIN_LED_ON;
-  #else
-    pixels.setPixelColor(0, pixels.Color(0, 255, 0)); // Set the NeoPixel to green
-    pixels.show();
-  #endif
+  PIN_LED_ON;
 #endif
 
   // Check if the switch is latched
@@ -417,12 +406,7 @@ int main()
   }
 
 #if defined(LED_RUN)
-  #if !defined(rp2040zero)
-    PIN_LED_OFF;
-  #else
-    pixels.setPixelColor(0, pixels.Color(0, 0, 0)); // Set the NeoPixel to off
-    pixels.show();
-  #endif
+  PIN_LED_OFF;
 #endif
 
 #endif
@@ -441,7 +425,7 @@ int main()
     if (PIN_WFCK_READ == 0)
       lows++; // good for ~5000 reads in 1s
     _delay_us(200);
-#ifdef rp2040zero
+#ifdef ARDUINO_ARCH_RP2040
     // Update timer variables for RP2040 implementation
     update_timer_vars();
 #endif
@@ -554,14 +538,10 @@ int main()
       //************************************************************************
 
 #if defined(LED_RUN)
-  #if !defined(rp2040zero)
-    PIN_LED_ON;
-  #else
-    pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // Set the NeoPixel to blue
-    pixels.show();
-  #endif
+  PIN_LED_ON;
 #endif
 
+      // In bit-banging mode, prepare the DATA pin
       PIN_DATA_OUTPUT;
       PIN_DATA_CLEAR;
 
@@ -584,15 +564,11 @@ int main()
         PIN_WFCK_INPUT;
       }
 
+      // In bit-banging mode, reset the DATA pin
       PIN_DATA_INPUT;
 
 #if defined(LED_RUN)
-  #if !defined(rp2040zero)
-    PIN_LED_OFF;
-  #else
-    pixels.setPixelColor(0, pixels.Color(0, 0, 0)); // Set the NeoPixel to off
-    pixels.show();
-  #endif
+  PIN_LED_OFF;
 #endif
     }
   }
