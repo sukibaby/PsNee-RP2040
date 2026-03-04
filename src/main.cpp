@@ -12,7 +12,7 @@
 
 // Here the regions are specified
 // #define SCPH_xxx1        // Use for all NTSC-U/C models. No BIOS patching needed.
-#define SCPH_xxx2        // Use for all PAL FAT models. No BIOS patching needed.
+// #define SCPH_xxx2        // Use for all PAL FAT models. No BIOS patching needed.
 // #define SCPH_103         // Maybe for all SCPH_xxx3 but I have no info.
 
 // And all models that require a BIOS patch
