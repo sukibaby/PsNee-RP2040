@@ -752,7 +752,7 @@
 
 #endif
 
-#ifdef rp2040zero
+#ifdef ARDUINO_ARCH_RP2040
 
 // Define the clock speed for the RP2040 microcontroller
 #ifndef F_CPU
@@ -760,9 +760,12 @@
 #endif
 
 #include <Arduino.h>
+#include <pins_arduino.h>
 #include <stdint.h>
 #include <stdbool.h>
+#if defined(PIN_NEOPIXEL)
 #include <Adafruit_NeoPixel.h>
+#endif
 
 // Timer related definitions
 #define TIMER_TCNT_CLEAR            // No direct timer count register on RP2040 via Arduino
@@ -853,8 +856,26 @@
 #define PIN_SWITCH_SET              // Not applicable, using INPUT_PULLUP
 #define PIN_SWITCH_READ             digitalRead(PIN_SWITCH)
 
-// The RP2040 Zero uses a NeoPixel (WS2812B) as an onboard LED
-Adafruit_NeoPixel pixels(1, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800); // Create a NeoPixel object
+// LED handling for RP2040 boards
+#if defined(PIN_NEOPIXEL)
+// RP2040 Zero-class boards expose an onboard NeoPixel
+Adafruit_NeoPixel pixels(1, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+#define PIN_LED_OUTPUT              do { pixels.begin(); pixels.setBrightness(50); pixels.setPixelColor(0, pixels.Color(0, 0, 0)); pixels.show(); } while (0)
+#define PIN_LED_ON                  do { pixels.setPixelColor(0, pixels.Color(0, 255, 0)); pixels.show(); } while (0)
+#define PIN_LED_OFF                 do { pixels.setPixelColor(0, pixels.Color(0, 0, 0)); pixels.show(); } while (0)
+#else
+// Use board variant LED pin from pins_arduino.h (rpipico)
+#if defined(PIN_LED)
+#define PSNEEPIO_LED_PIN            PIN_LED
+#elif defined(LED_BUILTIN)
+#define PSNEEPIO_LED_PIN            LED_BUILTIN
+#else
+#define PSNEEPIO_LED_PIN            25
+#endif
+#define PIN_LED_OUTPUT              pinMode(PSNEEPIO_LED_PIN, OUTPUT)
+#define PIN_LED_ON                  digitalWrite(PSNEEPIO_LED_PIN, HIGH)
+#define PIN_LED_OFF                 digitalWrite(PSNEEPIO_LED_PIN, LOW)
+#endif
 
 // Arduino-style delay functions for RP2040
 #define _delay_us(us) delayMicroseconds(us)
